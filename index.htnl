@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>原神 最新シリアルコード自動生成ツール</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      max-width: 650px;
+      margin: 40px auto;
+      padding: 0 20px;
+      background-color: #f8fafc;
+      color: #1e293b;
+    }
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+    }
+    .btn {
+      background-color: #3b82f6;
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      width: 100%;
+      font-size: 16px;
+    }
+    .btn:hover { background-color: #2563eb; }
+    .code-item {
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 16px;
+      margin-top: 12px;
+      background-color: #ffffff;
+    }
+    .code-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    .code-title {
+      font-size: 18px;
+      font-weight: bold;
+      color: #0f172a;
+    }
+    .rewards {
+      font-size: 14px;
+      color: #64748b;
+      margin-bottom: 12px;
+    }
+    .action-group {
+      display: flex;
+      gap: 10px;
+    }
+    .action-btn {
+      flex: 1;
+      padding: 8px;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      background: #f1f5f9;
+      cursor: pointer;
+      text-align: center;
+      text-decoration: none;
+      color: #334155;
+      font-size: 14px;
+      font-weight: 500;
+    }
+    .action-btn.primary {
+      background-color: #e0e7ff;
+      color: #3730a3;
+      border-color: #c7d2fe;
+    }
+    .action-btn:hover { opacity: 0.9; }
+  </style>
+</head>
+<body>
+
+  <div class="card">
+    <h2>原神 シリアルコード自動取得ツール</h2>
+    <p style="font-size: 14px; color: #64748b;">API経由で現在利用可能なコードを自動で取得・生成します。</p>
+    <button class="btn" onclick="loadCodes()">最新コードを取得する</button>
+  </div>
+
+  <div id="result"></div>
+
+  <script>
+    async function loadCodes() {
+      const resultDiv = document.getElementById('result');
+      resultDiv.innerHTML = '<div class="card">取得中...</div>';
+
+      try {
+        // Ennead API (Hoyocodes) から原神のコードを取得
+        const res = await fetch('https://raw.githubusercontent.com/heartlog/Hoyocodes/main/data/genshin.json');
+        const data = await res.json();
+
+        // アクティブなコードのみを抽出 (非アクティブフラグがないもの)
+        const activeCodes = data.filter(item => !item.expired);
+
+        if (activeCodes.length === 0) {
+          resultDiv.innerHTML = '<div class="card">現在利用可能なコードが見つかりませんでした。</div>';
+          return;
+        }
+
+        resultDiv.innerHTML = '';
+
+        activeCodes.forEach(item => {
+          const code = item.code;
+          const fullUrl = `https://genshin.hoyoverse.com/ja/gift?code=${code}`;
+          const rewards = item.rewards ? item.rewards.join(', ') : '報酬詳細なし';
+
+          const card = document.createElement('div');
+          card.className = 'code-item card';
+          card.innerHTML = `
+            <div class="code-header">
+              <span class="code-title">${code}</span>
+            </div>
+            <div class="rewards">🎁 報酬: ${rewards}</div>
+            <div class="action-group">
+              <button class="action-btn" onclick="copyToClipboard('${fullUrl}', this)">URLをコピー</button>
+              <a class="action-btn primary" href="${fullUrl}" target="_blank" rel="noopener noreferrer">直接引き換える ↗</a>
+            </div>
+          `;
+          resultDiv.appendChild(card);
+        });
+
+      } catch (error) {
+        resultDiv.innerHTML = '<div class="card" style="color: red;">コードの自動取得に失敗しました。時間をおいて再試行してください。</div>';
+        console.error(error);
+      }
+    }
+
+    // クリップボードコピー機能
+    function copyToClipboard(text, btnElement) {
+      navigator.clipboard.writeText(text).then(() => {
+        const originalText = btnElement.innerText;
+        btnElement.innerText = 'コピーしました！';
+        btnElement.style.backgroundColor = '#dcfce7';
+        btnElement.style.color = '#166534';
+        
+        setTimeout(() => {
+          btnElement.innerText = originalText;
+          btnElement.style.backgroundColor = '#f1f5f9';
+          btnElement.style.color = '#334155';
+        }, 2000);
+      });
+    }
+  </script>
+
+</body>
+</html>
