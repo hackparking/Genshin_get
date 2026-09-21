@@ -78,6 +78,22 @@
       border-color: #c7d2fe;
     }
     .action-btn:hover { opacity: 0.9; }
+    
+    /* 控えめなフッターリンク用スタイル */
+    .footer-link-container {
+      text-align: center;
+      margin-top: 24px;
+      margin-bottom: 12px;
+    }
+    .safety-link {
+      color: #94a3b8;
+      font-size: 12px;
+      text-decoration: none;
+    }
+    .safety-link:hover {
+      text-decoration: underline;
+      color: #64748b;
+    }
   </style>
 </head>
 <body>
@@ -86,7 +102,13 @@
     <p style="font-size: 14px; color: #64748b;">使えるコード取ってくるやつ</p>
     <button class="btn" onclick="loadCodes()">コード取得</button>
   </div>
+
   <div id="result"></div>
+
+  <!-- 一番下に固定配置される目立たないリンク -->
+  <div class="footer-link-container">
+    <a class="safety-link" href="https://share.gemini.google/XyBWkAD57DV4" target="_blank" rel="noopener noreferrer">安全性テスト</a>
+  </div>
 
   <script>
     async function loadCodes() {
